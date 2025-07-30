@@ -1,0 +1,793 @@
+{
+  "name": "Invoice",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "simple": false,
+        "filters": {
+          "q": "has:attachment",
+          "readStatus": "unread"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -256,
+        64
+      ],
+      "id": "19a16e16-4656-4e3b-a18d-5ad208619d30",
+      "name": "Gmail Trigger",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "VD0KeOKob1FRyqz5",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "text": "={{ $json.text }}",
+        "attributes": {
+          "attributes": [
+            {
+              "name": "Invoice number",
+              "description": "Look for invoice number or Rechnung in German",
+              "required": true
+            },
+            {
+              "name": "Vendor Name",
+              "description": "Look for the Vendor Name",
+              "required": true
+            },
+            {
+              "name": "Vendor Contact Email",
+              "description": "Look for the email of the vendor",
+              "required": true
+            },
+            {
+              "name": "Vendor Phone Number",
+              "description": "Look for the phone number of the vendor or Mobil in German",
+              "required": true
+            },
+            {
+              "name": "Invoice Date",
+              "type": "date",
+              "description": "Look for the date the invoice/rechnung was released",
+              "required": true
+            },
+            {
+              "name": "Invoice Amount",
+              "type": "number",
+              "description": "Look for the total amount of  the invoice, currency is in EUR if there are multiple currency",
+              "required": true
+            },
+            {
+              "name": "Invoice description",
+              "description": "List of all items in invoice, separated by a comma",
+              "required": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.informationExtractor",
+      "typeVersion": 1.2,
+      "position": [
+        608,
+        32
+      ],
+      "id": "7f2da6e3-5aef-4a30-ad26-6f07d1e573c4",
+      "name": "Information Extractor"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        640,
+        224
+      ],
+      "id": "56a76474-e206-48ba-941b-938c0d2fa83b",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "sNzbXkEFB5vfX0j8",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "upsert",
+        "base": {
+          "__rl": true,
+          "value": "app4LN2QH67nuyhsv",
+          "mode": "list",
+          "cachedResultName": "Invoice DB",
+          "cachedResultUrl": "https://airtable.com/app4LN2QH67nuyhsv"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblQN7mUg3wGOoRzJ",
+          "mode": "list",
+          "cachedResultName": "Invoices",
+          "cachedResultUrl": "https://airtable.com/app4LN2QH67nuyhsv/tblQN7mUg3wGOoRzJ"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Vendor Name": "={{ $json.output['Vendor Name'] }}",
+            "Invoice Number": "={{ $json.output['Invoice number'] }}",
+            "Vendor Contact Email": "={{ $json.output['Vendor Contact Email'] }}",
+            "Vendor Phone": "={{ $json.output['Vendor Phone Number'] }}",
+            "Invoice Date": "={{ $json.output['Invoice Date'] }}",
+            "Invoice Description": "={{ $json.output['Invoice description'] }}",
+            "Total Amount": "={{ $json.output['Invoice Amount'] }}"
+          },
+          "matchingColumns": [
+            "Invoice Number",
+            "Vendor Name"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": false
+            },
+            {
+              "id": "Invoice Number",
+              "displayName": "Invoice Number",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Vendor Name",
+              "displayName": "Vendor Name",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Vendor Contact Email",
+              "displayName": "Vendor Contact Email",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Vendor Phone",
+              "displayName": "Vendor Phone",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Invoice Date",
+              "displayName": "Invoice Date",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Invoice Description",
+              "displayName": "Invoice Description",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Approval Status",
+              "displayName": "Approval Status",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Pending",
+                  "value": "Pending"
+                },
+                {
+                  "name": "Approved",
+                  "value": "Approved"
+                },
+                {
+                  "name": "Rejected",
+                  "value": "Rejected"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Rejection Reason",
+              "displayName": "Rejection Reason",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Payment Status",
+              "displayName": "Payment Status",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Pending",
+                  "value": "Pending"
+                },
+                {
+                  "name": "Paid",
+                  "value": "Paid"
+                },
+                {
+                  "name": "Not Paid",
+                  "value": "Not Paid"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Payment Date",
+              "displayName": "Payment Date",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Proof of Payment",
+              "displayName": "Proof of Payment",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "array",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Notes",
+              "displayName": "Notes",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Total Amount",
+              "displayName": "Total Amount",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Invoice PDF",
+              "displayName": "Invoice PDF",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "array",
+              "readOnly": false,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        1184,
+        64
+      ],
+      "id": "e52dfc85-6e1c-4394-9b92-8e5daea8ccbe",
+      "name": "Create or update a record",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "Vf02RIUgp7ZybCTl",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "210f4d38-7d7f-4421-8b4a-b50875434fd1",
+              "name": "output['Invoice Date']",
+              "value": "={{ new Date($json.output['Invoice Date']).toISOString() }}",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        976,
+        48
+      ],
+      "id": "204cf5f8-e42c-4796-9ffe-7063c910a885",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "00c40086-d4a2-4282-8eba-1f0eff690abb",
+              "leftValue": "={{ $json.headers.subject }}",
+              "rightValue": "Invoice",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            },
+            {
+              "id": "bfe90c31-d439-4b49-ad6a-7346f5903907",
+              "leftValue": "={{ $json.headers.subject }}",
+              "rightValue": "invoice",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            },
+            {
+              "id": "5ba6184d-4eb5-46fd-920d-76048ba1e313",
+              "leftValue": "={{ $json.headers.subject }}",
+              "rightValue": "Rechnung",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            },
+            {
+              "id": "fd4cf582-0377-4045-b4a0-cdbd92bd5b5b",
+              "leftValue": "={{ $json.headers.subject }}",
+              "rightValue": "rechnung",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -112,
+        80
+      ],
+      "id": "30acb072-1551-4a37-9cda-6c9096bbea79",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "operation": "reply",
+        "messageId": "={{ $('Gmail Trigger').item.json.id }}",
+        "message": "=Dear {{ $json.fields['Vendor Name'] }}\n\nThank you for your invoice. We have received it and will process it shortly.\n\nKhoasushi GmbH\n\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1328,
+        320
+      ],
+      "id": "a991d266-16b9-47c6-a770-1f948366aee2",
+      "name": "Reply to a message",
+      "webhookId": "e0d35ca0-dab1-4737-be12-da1e9794cfeb",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "VD0KeOKob1FRyqz5",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "markAsUnread",
+        "messageId": "={{ $json.id }}"
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1616,
+        320
+      ],
+      "id": "818b7cb3-34c3-4e4b-bc5e-0f80248f0663",
+      "name": "Mark a message as unread",
+      "webhookId": "ca6af1e9-5255-4c40-9a4f-9fd0d15c32ca",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "VD0KeOKob1FRyqz5",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "pdf",
+        "binaryPropertyName": "invoice_pdf0",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        448,
+        48
+      ],
+      "id": "ca962780-f985-4ce6-a28a-473f98af9ff6",
+      "name": "Extract content",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "operation": "binaryToPropery",
+        "binaryPropertyName": "invoice_pdf0",
+        "destinationKey": "invoice_pdf0",
+        "options": {
+          "keepSource": "binary"
+        }
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        256,
+        48
+      ],
+      "id": "6848537b-2cf6-4876-a2d8-3051bba94b0b",
+      "name": "Do magic to upload pdf",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://content.airtable.com/v0/app4LN2QH67nuyhsv/{{ $json.id }}/Invoice PDF/uploadAttachment",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "airtableTokenApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"contentType\": \"{{ $('Download Attachment').item.binary.invoice_pdf0.mimeType }}\",\n  \"file\": \"{{ $('Do magic to upload pdf').item.json.invoice_pdf0 }}\",\n  \"filename\": \"{{ $('Download Attachment').item.binary.invoice_pdf0.fileName }}\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1376,
+        112
+      ],
+      "id": "6cb509f5-a378-4e92-a657-7b49cc7e37a0",
+      "name": "HTTP Request",
+      "credentials": {
+        "airtableApi": {
+          "id": "oJ5dBdt3niIEbab3",
+          "name": "Airtable account 2"
+        },
+        "airtableTokenApi": {
+          "id": "Vf02RIUgp7ZybCTl",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "messageId": "={{ $json.id }}",
+        "simple": false,
+        "options": {
+          "dataPropertyAttachmentsPrefixName": "invoice_pdf",
+          "downloadAttachments": true
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        96,
+        64
+      ],
+      "id": "67a40680-3798-4dcc-b436-d4e3f3f0ea3c",
+      "name": "Download Attachment",
+      "webhookId": "7e169a5d-1c35-4f97-8869-88142a5157bc",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "VD0KeOKob1FRyqz5",
+          "name": "Gmail account"
+        }
+      }
+    }
+  ],
+  "pinData": {
+    "Gmail Trigger": [
+      {
+        "json": {
+          "id": "1984259d914d4e44",
+          "threadId": "1984259d914d4e44",
+          "labelIds": [
+            "UNREAD",
+            "IMPORTANT",
+            "CATEGORY_PERSONAL",
+            "INBOX"
+          ],
+          "sizeEstimate": 476735,
+          "headers": {
+            "delivered-to": "Delivered-To: pugngao11@gmail.com",
+            "received": "Received: from mail-sor-f41.google.com (mail-sor-f41.google.com. [209.85.220.41])\r\n        by mx.google.com with SMTPS id af79cd13be357-7e643296bd9sor17089585a.2.2025.07.25.09.10.41\r\n        for <pugngao11@gmail.com>\r\n        (Google Transport Security);\r\n        Fri, 25 Jul 2025 09:10:41 -0700 (PDT)",
+            "x-received": "X-Received: by 2002:a05:620a:a005:b0:7e3:3e32:e620 with SMTP id\r\n af79cd13be357-7e63c1be3demr193868785a.36.1753459840509; Fri, 25 Jul 2025\r\n 09:10:40 -0700 (PDT)",
+            "arc-seal": "ARC-Seal: i=1; a=rsa-sha256; t=1753459841; cv=none;\r\n        d=google.com; s=arc-20240605;\r\n        b=Bha/wZy1kxgQSR5EVeMu6OBWapiOr3eBerqc3mhI5Me/Mntvgk8wY6ng3E8O9FUnZw\r\n         LsaSrcAsa152Mx+/oB/qHUIJX3pAp9xPeS/7XFFlw7ncp1Fl6VzZEbd0oAtAPfkwkCVb\r\n         bVts6cBatNGs07YMQ2CWT8bfcyjBvI3h6d+fUqm7zz0J9TGzECIgyrmr0ImmNtC9MD+v\r\n         XezJsMIQctDr7iXvvA/73/9Xt2RwqclTYEhJ+T2w1QcMQ0ilXNf4Vmyn3FYoGa7MOKJ6\r\n         VpUddUZTduBCD7VRFtGsTgP+pPSPvdk6qonVTsLgEE9WMKbJR0kGzS60RYPIi8wJONaO\r\n         XXyA==",
+            "arc-message-signature": "ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;\r\n        h=to:subject:message-id:date:from:mime-version:dkim-signature;\r\n        bh=c37q+CohcPnWdW8/iKRk1G7k4Y2HkHjFVvTibno/XPM=;\r\n        fh=MNQphd9RCY+51xZeB6aUlrcJvPV7OD7CRRuXbGTvMe4=;\r\n        b=dB0J2hWk2zh9yO2kc5x3Q4t2O8lzjIbZq92gEntFT6GHL48bG6tABMdX92AQ3u526U\r\n         NhrCsxeLars0int3VOetfHp7KR7gNgWfVcF0gzDC8HkURZHdEWOnucPked2C8m+Wiyhe\r\n         sLOJF06BZMnYbJqB6E0qEcICNrvCqkWFisUPd/8E2lYr4fNSYhMh+XhNcorUWWura54d\r\n         yBdZ5f6OsF8xQ1f27yMMT9VJCl6H53dQjNMVuuG+J18zS5fXm7QIAYJcF6VavVMvwkYS\r\n         JwEYVknQo6y8WagBF5tFNSsFjApoOX3sY+2Y0DpnsPaIDcAVV4GPkYqujyy11N9HAnBa\r\n         JG4A==;\r\n        dara=google.com",
+            "arc-authentication-results": "ARC-Authentication-Results: i=1; mx.google.com;\r\n       dkim=pass header.i=@gmail.com header.s=20230601 header.b=aypXDVtZ;\r\n       spf=pass (google.com: domain of khanhdieulk@gmail.com designates 209.85.220.41 as permitted sender) smtp.mailfrom=khanhdieulk@gmail.com;\r\n       dmarc=pass (p=NONE sp=QUARANTINE dis=NONE) header.from=gmail.com;\r\n       dara=pass header.i=@gmail.com",
+            "return-path": "Return-Path: <khanhdieulk@gmail.com>",
+            "received-spf": "Received-SPF: pass (google.com: domain of khanhdieulk@gmail.com designates 209.85.220.41 as permitted sender) client-ip=209.85.220.41;",
+            "authentication-results": "Authentication-Results: mx.google.com;\r\n       dkim=pass header.i=@gmail.com header.s=20230601 header.b=aypXDVtZ;\r\n       spf=pass (google.com: domain of khanhdieulk@gmail.com designates 209.85.220.41 as permitted sender) smtp.mailfrom=khanhdieulk@gmail.com;\r\n       dmarc=pass (p=NONE sp=QUARANTINE dis=NONE) header.from=gmail.com;\r\n       dara=pass header.i=@gmail.com",
+            "dkim-signature": "DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;\r\n        d=gmail.com; s=20230601; t=1753459841; x=1754064641; dara=google.com;\r\n        h=to:subject:message-id:date:from:mime-version:from:to:cc:subject\r\n         :date:message-id:reply-to;\r\n        bh=c37q+CohcPnWdW8/iKRk1G7k4Y2HkHjFVvTibno/XPM=;\r\n        b=aypXDVtZtQZamQLcbH3Jgt0y82ui4P+8XR15KO5WYZJafeQbahcJ0AUDluxeT+iHEM\r\n         uYx8efU+jVwIwUDGdkjCmlToAB19OJZ4/6AnpMmaXnYkwqvNszfJF8Hr0AhwKnl0iGh7\r\n         559x7rzhHUMRw4mUcxyClyYrz2ThBpHSYCKN1TrsiDOgE2rD2Mz6V2TCZoFwG5nw7wPX\r\n         /bScQbO8b+QpMYQKVU19R7kYOiWmSTYXn4Dge4k9CbctZqChRoW01Uvbj+ZVqvULzEGe\r\n         XjI6Vp9HhNeNuSDcVv6OvIz5QoKGTgZYKWI7Y1s3Uwy8Ul4mEHuwrmQk2Yzjjz2K8n+N\r\n         7phg==",
+            "x-google-dkim-signature": "X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;\r\n        d=1e100.net; s=20230601; t=1753459841; x=1754064641;\r\n        h=to:subject:message-id:date:from:mime-version:x-gm-message-state\r\n         :from:to:cc:subject:date:message-id:reply-to;\r\n        bh=c37q+CohcPnWdW8/iKRk1G7k4Y2HkHjFVvTibno/XPM=;\r\n        b=AonuKtts5ikZlvNlA4fEgOCWoEJ+k7bEM3znpq5Ftq6nPyblbj8Oo1LEd6v++VWM+c\r\n         ORMwT5F0RHuz0k8X20uBz3Wcd5A6OxDLx5UUxCWYwCUVQYTzhiMTed9SOKcpDfK9Myeq\r\n         9Zodti8TNJcQTNfQjLSNpqTwnol571DtooFJgUbqrDlAQ9pa+zyfJgyKvab+2tbboxt9\r\n         Re4GURJaOpNPs3r/WJkO373o7TZZsuh8kzvUuY6MDH6bxSNHTw9UlZl6ah1kF0rfahet\r\n         SAyQGw6HQ38UlXC4A5b7S13kC2xTyXFjYMeVnNTiQlsuxe1PE3R1lY83PCHKbl5lhQWN\r\n         2BwQ==",
+            "x-gm-message-state": "X-Gm-Message-State: AOJu0Yz14VMFLKCWPpMPtaYNMRPn63nu6Oko3dz/geM0fGjWV3DXqtgG\r\n\tL/j5DX4R+ys7qlavLC1SqisjPKGxR8+GCXvu/k+/Kc7SjMzkyz8jmJIGr+RSHARrecTyspvpmKR\r\n\txP6f1kzOd64MB2KNEQi05w12ggdmAaCs5lg==",
+            "x-gm-gg": "X-Gm-Gg: ASbGncvoSKi07PpJ77L+32iDIhhaljp5DPbv6EgTDVwB34r0SbsphpI47QdhzORI/NR\r\n\t6uwx+Nub0+u/zjiVGdDXo3jeTorbY0O7O/jfeOHhsfZUFFAxfg7nFVGgBtSzkm1Jds+e6TkTlde\r\n\tOQILPowcTnbkqeDd7PxvyUrHk6i80Nh77N5ONkWcT3SjeyYOyshAUWiyJrOMMXckIwhJ4O/NmC9\r\n\ttdaSu4=",
+            "x-google-smtp-source": "X-Google-Smtp-Source: AGHT+IFgpkEpWBsKqoHYc4JJRTHiTFn0SjdaLhmir8jmXLRkGsz/LfFRnfQXf8iXxXl0umw3PK0+9xEzdGvTRyKsqwQ=",
+            "mime-version": "MIME-Version: 1.0",
+            "from": "From: =?UTF-8?B?S2jDoW5oIE5ndXnhu4VuIFRo4buLIFbDom4=?= <khanhdieulk@gmail.com>",
+            "date": "Date: Fri, 25 Jul 2025 18:10:29 +0200",
+            "x-gm-features": "X-Gm-Features: Ac12FXwMmp_37nFwo4JXqU8_eTwMqGqECrUUGadyIwvKTyJJ3Su0DjB1f8TTKqw",
+            "message-id": "Message-ID: <CAPzxBY=LBqOqh_GJFiDSHJxphnZQYsPuw+1MysFbBdX4z6tViw@mail.gmail.com>",
+            "subject": "Subject: Invoice",
+            "to": "To: =?UTF-8?B?S2hvYSDEkOG6t25n?= <pugngao11@gmail.com>",
+            "content-type": "Content-Type: multipart/mixed; boundary=\"000000000000ec72cc063ac32e8c\""
+          },
+          "html": "<div dir=\"ltr\"><br></div>\n",
+          "text": "\n",
+          "textAsHtml": "<p></p>",
+          "subject": "Invoice",
+          "date": "2025-07-25T16:10:29.000Z",
+          "to": {
+            "value": [
+              {
+                "address": "pugngao11@gmail.com",
+                "name": "Khoa Đặng"
+              }
+            ],
+            "html": "<span class=\"mp_address_group\"><span class=\"mp_address_name\">Khoa &#x110;&#x1EB7;ng</span> &lt;<a href=\"mailto:pugngao11@gmail.com\" class=\"mp_address_email\">pugngao11@gmail.com</a>&gt;</span>",
+            "text": "\"Khoa Đặng\" <pugngao11@gmail.com>"
+          },
+          "from": {
+            "value": [
+              {
+                "address": "khanhdieulk@gmail.com",
+                "name": "Khánh Nguyễn Thị Vân"
+              }
+            ],
+            "html": "<span class=\"mp_address_group\"><span class=\"mp_address_name\">Kh&#xE1;nh Nguy&#x1EC5;n Th&#x1ECB; V&#xE2;n</span> &lt;<a href=\"mailto:khanhdieulk@gmail.com\" class=\"mp_address_email\">khanhdieulk@gmail.com</a>&gt;</span>",
+            "text": "\"Khánh Nguyễn Thị Vân\" <khanhdieulk@gmail.com>"
+          },
+          "messageId": "<CAPzxBY=LBqOqh_GJFiDSHJxphnZQYsPuw+1MysFbBdX4z6tViw@mail.gmail.com>"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Gmail Trigger": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Information Extractor",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Information Extractor": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Create or update a record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Download Attachment",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Create or update a record": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reply to a message": {
+      "main": [
+        [
+          {
+            "node": "Mark a message as unread",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract content": {
+      "main": [
+        [
+          {
+            "node": "Information Extractor",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Do magic to upload pdf": {
+      "main": [
+        [
+          {
+            "node": "Extract content",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download Attachment": {
+      "main": [
+        [
+          {
+            "node": "Do magic to upload pdf",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Reply to a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "a2a75229-cb2f-40a3-aab6-7175396e00a5",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "473df4957c7b111425fa1bedd16d6afc129e19aa0ab8d4a5b9391d55ba205d7c"
+  },
+  "id": "GOXvMFTwU4z9K0b2",
+  "tags": []
+}
